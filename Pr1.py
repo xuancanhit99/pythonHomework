@@ -18,10 +18,6 @@ def f2(x):
         return 97*x + math.e**x
 
 
-def sigma_sum(start, end, expression):
-    return sum(expression(i) for i in range(start, end))
-
-
 def f3(n, m):
     sum1 = 0
     for i in range(1, n+1):
