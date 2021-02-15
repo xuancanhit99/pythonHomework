@@ -1,11 +1,11 @@
 import math
 
 
-def f1(x, y, z):
+def f11(x, y, z):
     return y**4 - math.e**y - 95 + 27*(x**4 - math.cos(z))**2 + z**3 - (y**3 + 64*x**2 - 32)/(16*y**3 - x**8)
 
 
-def f2(x):
+def f12(x):
     if x < 119:
         return x**5 - math.e**x - 95
     elif x < 141 & x >= 119:
@@ -18,7 +18,7 @@ def f2(x):
         return 97*x + math.e**x
 
 
-def f3(n, m):
+def f13(n, m):
     sum1 = 0
     for i in range(1, n+1):
         for j in range(1, m+1):
@@ -31,7 +31,7 @@ def f3(n, m):
     return 45*sum1 + 92*sum2
 
 
-def f4(n):
+def f14(n):
     if n == 0:
         return 7
-    return math.cos(f4(n-1)) - math.tan(f4(n-1)) - 41
+    return math.cos(f14(n-1)) - math.tan(f14(n-1)) - 41
