@@ -8,11 +8,11 @@ def f11(x, y, z):
 def f12(x):
     if x < 119:
         return x**5 - math.e**x - 95
-    elif x < 141 & x >= 119:
+    elif 119 <= x < 141:
         return (25*x**4 + (x**5)/67)**2 + x**8
-    elif x < 161 & x >= 141:
+    elif 141 <= x < 161:
         return math.cos(x**6 + x/84) + math.sin(x**8)
-    elif x < 178 & x >= 161:
+    elif 161 <= x < 178:
         return math.cos(38*x**8 - math.e**x) + math.log(math.e**x + math.sin(x) + 76)
     else:
         return 97*x + math.e**x
