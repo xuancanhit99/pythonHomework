@@ -2,20 +2,20 @@ import math
 
 
 def f11(x, y, z):
-    return y**4 - math.e**y - 95 + 27*(x**4 - math.cos(z))**2 + z**3 - (y**3 + 64*x**2 - 32)/(16*y**3 - x**8)
+    return y**4 - math.exp(y) - 95 + 27*(x**4 - math.cos(z))**2 + z**3 - (y**3 + 64*x**2 - 32)/(16*y**3 - x**8)
 
 
 def f12(x):
     if x < 119:
-        return x**5 - math.e**x - 95
+        return x**5 - math.exp(x) - 95
     elif 119 <= x < 141:
-        return (25*x**4 + (x**5)/67)**2 + x**8
+        return (25*x**4 + x**5/67)**2 + x**8
     elif 141 <= x < 161:
         return math.cos(x**6 + x/84) + math.sin(x**8)
     elif 161 <= x < 178:
-        return math.cos(38*x**8 - math.e**x) + math.log(math.e**x + math.sin(x) + 76)
-    else:
-        return 97*x + math.e**x
+        return math.cos(38*x**8 - math.exp(x)) + math.log(math.exp(x) + math.sin(x) + 76)
+    elif x >= 178:
+        return 97*x + math.exp(x)
 
 
 def f13(n, m):
@@ -26,7 +26,7 @@ def f13(n, m):
 
     sum2 = 0
     for i in range(1, n+1):
-        sum2 += math.e**i - 36*i**8 - 27
+        sum2 += math.exp(i) - 36*i**8 - 27
 
     return 45*sum1 + 92*sum2
 
