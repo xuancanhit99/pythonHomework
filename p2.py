@@ -41,16 +41,60 @@ def f22(a):
     return x
 
 
-def f23(input):
-    column = []
-    for row in input:
-        column.append(row[0])
+def cm(a, b):
+    result = True
+
+    for i in range(len(a)):
+        if a[i] != b[i]:
+            result = False
+            break
+    return result
 
 
-    print(len(input))
-    print(input)
-    return 1
+def f23(a):
+    b = []
+    for i in range(len(a)):
+        b.append([])
+        for j in range(len(a[i])):
+            if a[i][j] is not None:
+                b[i].append(a[i][j])
 
+    c = []
+    for i in range(len(b)):
+        c.append([])
+        for j in range(len(b[i])):
+            if j == 0:
+                c[i].append(b[i][j])
+            else:
+                if b[i][j] != c[i][j-1]:
+                    c[i].append(b[i][j])
 
-f23([['vesucak32[at]rambler.ru', '26.04.99', ' ', 'Антон К. Вешучяк', 'Нет', 'Нет'], ['radmir46[at]mail.ru', '19.11.99', ' ', 'Радмир Т. Гитук', 'Да', 'Да'], ['ticazanz72[at]gmail.com', '16.07.00', ' ', 'Артем В. Тичазянц', 'Да', 'Да'], ['ticazanz72[at]gmail.com', '16.07.00', ' ', 'Артем В. Тичазянц', 'Да', 'Да'], ['tamman31[at]mail.ru', '19.06.03', ' ', 'Артур В. Тамман', 'Нет', 'Нет'] ])
+    d = []
+    d.append(c[0])
+    for i in range(1, len(c)):
+        check = False
+        for j in range(len(d)):
+            if cm(c[i], d[j]):
+                check = True
+        if not check:
+            d.append(c[i])
 
+    for i in range(len(d)):
+        for j in range(len(d[i])):
+            if '@' in d[i][j]:
+                d[i][j] = d[i][j].replace('@', '[at]')
+            elif d[i][j].count('.') == 2 and ' ' not in d[i][j]:
+                lst = d[i][j].split('.')
+                lst.reverse()
+                d[i][j] = '/'.join(lst)
+            elif d[i][j].count(' ') == 2 and d[i][j].count('.') == 1:
+                ind = d[i][j].index('.')
+                d[i][j] = d[i][j][:ind-2] + d[i][j][ind+1:]
+                lst = d[i][j].split(' ')
+                lst.reverse()
+                d[i][j] = ' '.join(lst)
+            elif d[i][j] == 'Нет':
+                d[i][j] = 'Не выполнено'
+            elif d[i][j] == 'Да':
+                d[i][j] = 'Выполнено'
+    return d
