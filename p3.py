@@ -58,60 +58,70 @@ class C32:
             return None
 
 
-# def create_massive_c(binary_data, value):
-#     part = {
-#         'C1': list(struct.unpack('=2b', binary_data[value:value + 2])),
-#         'C2': struct.unpack('=f', binary_data[value + 2:value + 6])[0]
-#     }
-#     return part
-#
-#
-# def create_massive_d(binary_data, value):
-#     part = {
-#         'D1': struct.unpack('=f', binary_data[value:value + 4])[0],
-#         'D2': struct.unpack('= ', binary_data[value + 4:value + 12])[0],
-#         'D3': list(struct.unpack('=2B', binary_data[value + 12:value + 14]))
-#     }
-#     return part
-#
-#
-# def f31(binary_data):
-#     structure = {}
-#     a = 5
-#     b1 = struct.unpack('=2H', binary_data[a + 0:a + 4])
-#     c = list(struct.unpack('=' + 'H' * b1[0], binary_data[b1[1]:b1[1] + 2 * b1[0]]))
-#     b1 = []
-#     for value in c:
-#         b1.append(create_massive_c(binary_data, value))
-#
-#     a = 3
-#     b2 = struct.unpack('=q', binary_data[a + 6:a + 14])[0]
-#     b3 = struct.unpack('=I', binary_data[a + 14:a + 18])[0]
-#     b3 = create_massive_d(binary_data, b3)
-#     b4 = struct.unpack('=H', binary_data[a + 18:a + 20])[0]
-#     b5 = struct.unpack('=d', binary_data[a + 20:a + 28])[0]
-#
-#     a2 = struct.unpack('=q', binary_data[a + 28:a + 36])[0]
-#     a3 = struct.unpack('=i', binary_data[a + 36:a + 40])[0]
-#     a4 = struct.unpack('=B', binary_data[a + 40:a + 41])[0]
-#     a5 = list(struct.unpack('=6B', binary_data[a + 41:a + 47]))
-#
-#     structure['A1'] = {
-#         'B1': b1,
-#         'B2': b2,
-#         'B3': b3,
-#         'B4': b4,
-#         'B5': b5,
-#     }
-#     structure['A2'] = a2
-#     structure['A3'] = a3
-#     structure['A4'] = a4
-#     structure['A5'] = a5
-#
-#     return structure
-#
-#
-# print(f31((b'\x02ARMK\x03\x00D\x00%\x1b\xed\xb7\xc2\xfc&RJ\x00\x00\x00\t\xde\xc2'
-#            b'\x84\xed\xed\xe0\xfd\xee\xbf\x16_\x9e\xd0\x84\xaf\x1a*\x1f\xd5\x1e\x01\x81'
-#            b'XO\x95\x9ck\xc0\xa2*\x13\xb1\xca>\xeex\x07\x97t\xbfU,\x1cO\xa0>2\x008\x00'
-#            b'>\x00\xd1\xf6\xbe=Q\xe2\xbb\xac\x92L\xd1\x91\xcf\xde')))
+D_SIZE = 4 + 2 + 2
+C_SIZE = 1 + 4 + D_SIZE + 2
+B_SIZE = 4 + 2 + 1
+A_SIZE = 2 + 8 + 4 * 6 + 8 + 4 + 4 + 4 + 2 + 4 + 4
+
+
+def parse_d(offset, byte_string):
+    d_bytes = byte_string[offset: offset + D_SIZE]
+    d_parsed = struct.unpack('<iHH', d_bytes)
+    d2_bytes = byte_string[d_parsed[2]:d_parsed[2] + d_parsed[1] * 8]
+    d2_parsed = struct.unpack('<' + 'Q' * d_parsed[1], d2_bytes)
+    return {'D1': d_parsed[0],
+            'D2': list(d2_parsed)}
+
+
+def parse_c(offset, byte_string):
+    c12_bytes = byte_string[offset: offset + 5]
+    c12_parsed = struct.unpack('<bI', c12_bytes)
+    c3_parsed = parse_d(offset + 5, byte_string)
+    c4_bytes = byte_string[offset + 5 + D_SIZE:offset + 5 + D_SIZE + 2]
+    c4_parsed = struct.unpack('<' + 'H', c4_bytes)
+    return {'C1': c12_parsed[0],
+            'C2': c12_parsed[1],
+            'C3': c3_parsed,
+            'C4': c4_parsed[0]}
+
+
+def parse_b(offset, byte_string):
+    b_bytes = byte_string[offset:offset + B_SIZE]
+    b_parsed = struct.unpack('<fhB', b_bytes)
+    return {'B1': b_parsed[0],
+            'B2': b_parsed[1],
+            'B3': b_parsed[2]}
+
+
+def parse_a(offset, byte_string):
+    a123_byte = byte_string[offset:offset + 34]
+    a123_parsed = struct.unpack('<hqffffff', a123_byte)
+    a4_byte = byte_string[offset + 34:offset + 34 + 8]
+    a4_parsed = struct.unpack('<' + 'd', a4_byte)
+    a5_bytes = byte_string[offset + 42:offset + 42 + 4 + 4]
+    a5_parsed = struct.unpack('<II', a5_bytes)
+    a5_bytes_address = byte_string[a5_parsed[1]:a5_parsed[1] + a5_parsed[0] * 2]
+    a5_parsed_address = struct.unpack('<' + 'H' * a5_parsed[0], a5_bytes_address)
+    a5_list = [parse_b(addr, byte_string) for addr in a5_parsed_address]
+    a6_bytes = byte_string[offset + 2 + 8 + 4 * 6 + 8 + 4 + 4: offset + 2 + 8 + 4 * 6 + 8 + 4 + 4 + 4]
+    a6_parsed = struct.unpack('<' + 'I', a6_bytes)
+    a7_bytes = byte_string[offset + 2 + 8 + 4 * 6 + 8 + 4 + 4 + 4: offset + 2 + 8 + 4 * 6 + 8 + 4 + 4 + 4 + 2]
+    a7_parsed = struct.unpack('<h', a7_bytes)
+    a8_bytes = byte_string[offset + 2 + 8 + 4 * 6 + 8 + 4 + 4 + 4 + 2: offset + A_SIZE]
+    a8_parsed = struct.unpack('<II', a8_bytes)
+    a8_bytes_address = byte_string[a8_parsed[1]:a8_parsed[1] + a8_parsed[0] * 2]
+    a8_parsed_address = struct.unpack('<' + 'h' * a8_parsed[0], a8_bytes_address)
+    return {
+        'A1': a123_parsed[0],
+        'A2': a123_parsed[1],
+        'A3': list(a123_parsed[2:8]),
+        'A4': a4_parsed[0],
+        'A5': a5_list,
+        'A6': parse_c(a6_parsed[0], byte_string),
+        'A7': a7_parsed[0],
+        'A8': list(a8_parsed_address)
+    }
+
+
+def f31(byte_string):
+    return parse_a(4, byte_string)
